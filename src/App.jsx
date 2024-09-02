@@ -1,13 +1,15 @@
-import Form from "./components/Form";
+import { Route, Routes } from "react-router-dom";
+import Home from "./components/Home";
+import Preview from "./components/Preview";
 
 function App() {
   return (
     <>
-      <div className="container mx-auto p-4 py-10">
-        <h1 className="text-3xl text-center font-bold mb-4">
-          Lembaga Pemberdayaan Masyarakat Jawa Barat <br /> (LPM Jabar)
-        </h1>
-        <Form />
+      <div className="max-w-5xl mx-auto p-4 py-10">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/preview" element={<Preview />} />
+        </Routes>
       </div>
     </>
   );

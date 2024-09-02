@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { useBansosData } from "./DataProvider";
 import InputField from "./InputField";
+import { useNavigate } from "react-router-dom";
 
 const Form = () => {
-  const { bansosData, updateBansosData, submitData } = useBansosData();
+  const { bansosData, updateBansosData } = useBansosData();
+
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
   const [provinsi, setProvinsi] = useState([]);
   const [kabKota, setKabKota] = useState([]);
   const [kecamatan, setKecamatan] = useState([]);
@@ -62,7 +67,6 @@ const Form = () => {
         [name === "fotoKTP" ? "ktp" : "kk"]: URL.createObjectURL(files[0]),
       }));
     } else if (type === "select") {
-      setSelectedLocations((prev) => ({ ...prev, [name]: value }));
       updateBansosData(name, value);
     } else if (type === "checkbox") {
       updateBansosData(name, checked);
@@ -71,9 +75,22 @@ const Form = () => {
     }
   };
 
+  const handleSelect = (e) => {
+    const { name, value } = e.target;
+    setSelectedLocations((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    submitData();
+
+    setLoading(true);
+    setTimeout(() => {
+      navigate("/preview");
+      setLoading(false);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -141,7 +158,8 @@ const Form = () => {
         <div>
           <label
             htmlFor="fotoKTP"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Foto KTP
           </label>
           <div className="w-full h-40 rounded-lg border-2 border-dashed relative mt-2">
@@ -171,7 +189,8 @@ const Form = () => {
         <div>
           <label
             htmlFor="fotoKK"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Foto Kartu Keluarga
           </label>
           <div className="w-full h-40 rounded-lg border-2 border-dashed relative mt-2">
@@ -214,7 +233,8 @@ const Form = () => {
         <div>
           <label
             htmlFor="jenisKelamin"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Jenis Kelamin
           </label>
           <select
@@ -223,7 +243,8 @@ const Form = () => {
             value={bansosData.jenisKelamin}
             onChange={handleChange}
             required
-            className="border p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            className="border px-2 py-1.5 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          >
             <option value="">Pilih Jenis Kelamin</option>
             <option value="Laki-laki">Laki-laki</option>
             <option value="Perempuan">Perempuan</option>
@@ -235,16 +256,18 @@ const Form = () => {
         <div>
           <label
             htmlFor="provinsi"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Provinsi
           </label>
           <select
             id="provinsi"
             name="provinsi"
             value={bansosData.provinsi}
-            onChange={handleChange}
+            onChange={handleSelect}
             required
-            className="border p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            className="border px-2 py-1.5 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          >
             <option value="">Pilih Provinsi</option>
             {provinsi.map((item) => (
               <option key={item.name} value={item.id}>
@@ -257,51 +280,68 @@ const Form = () => {
         <div>
           <label
             htmlFor="kabKota"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Kabupaten/Kota
           </label>
           <select
             id="kabKota"
             name="kabKota"
             value={bansosData.kabKota}
-            onChange={handleChange}
+            onChange={handleSelect}
             required
-            className="border p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            <option value="">Pilih Kabupaten/Kota</option>
-            {kabKota.map((item) => (
-              <option key={item.name} value={item.id}>
-                {item.name}
-              </option>
-            ))}
+            className="border px-2 py-1.5 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          >
+            {provinsi.length ? (
+              <>
+                <option value="">Pilih Kabupaten/Kota</option>
+                {kabKota.map((item) => (
+                  <option key={item.name} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </>
+            ) : (
+              <option value="">--Pilih Provinsi terlebih dahulu--</option>
+            )}
           </select>
         </div>
 
         <div>
           <label
             htmlFor="kecamatan"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Kecamatan
           </label>
           <select
             id="kecamatan"
             name="kecamatan"
             value={bansosData.kecamatan}
-            onChange={handleChange}
+            onChange={handleSelect}
             required
-            className="border p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            <option value="">Pilih Kecamatan</option>
-            {kecamatan.map((item) => (
-              <option key={item.name} value={item.name}>
-                {item.name}
-              </option>
-            ))}
+            className="border px-2 py-1.5 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          >
+            {kabKota.length ? (
+              <>
+                <option value="">Pilih Kecamatan</option>
+                {kecamatan.map((item) => (
+                  <option key={item.name} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </>
+            ) : (
+              <option value="">--Pilih Kabupaten/Kota terlebih dahulu--</option>
+            )}
           </select>
         </div>
 
         <div>
           <label
             htmlFor="kelurahanDesa"
-            className="block text-sm font-medium text-gray-700">
+            className="block text-sm font-medium text-gray-700"
+          >
             Kelurahan/Desa
           </label>
           <select
@@ -310,13 +350,20 @@ const Form = () => {
             value={bansosData.kelurahanDesa}
             onChange={handleChange}
             required
-            className="border p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            <option value="">Pilih Kelurahan/Desa</option>
-            {kelurahanDesa.map((item) => (
-              <option key={item.name} value={item.name}>
-                {item.name}
-              </option>
-            ))}
+            className="border px-2 py-1.5 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          >
+            {kecamatan.length ? (
+              <>
+                <option value="">Pilih Kelurahan/Desa</option>
+                {kelurahanDesa.map((item) => (
+                  <option key={item.name} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </>
+            ) : (
+              <option value="">--Pilih Kecamatan terlebih dahulu--</option>
+            )}
           </select>
         </div>
       </div>
@@ -324,7 +371,8 @@ const Form = () => {
       <div>
         <label
           htmlFor="alamat"
-          className="block text-sm font-medium text-gray-700">
+          className="block text-sm font-medium text-gray-700"
+        >
           Alamat
         </label>
         <textarea
@@ -335,7 +383,8 @@ const Form = () => {
           required
           rows="4"
           maxLength="255"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border"></textarea>
+          className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 border"
+        ></textarea>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -381,7 +430,8 @@ const Form = () => {
       <div>
         <label
           htmlFor="alasanMembutuhkanBantuan"
-          className="block text-sm font-medium text-gray-700">
+          className="block text-sm font-medium text-gray-700"
+        >
           Alasan Membutuhkan Bantuan
         </label>
         <select
@@ -390,7 +440,8 @@ const Form = () => {
           value={bansosData.alasanMembutuhkanBantuan}
           onChange={handleChange}
           required
-          className="mt-1 p-2 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+          className="mt-1 p-2 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        >
           <option value="">Pilih Alasan</option>
           <option value="Kehilangan pekerjaan">Kehilangan pekerjaan</option>
           <option value="Kepala keluarga">Kepala keluarga</option>
@@ -431,8 +482,15 @@ const Form = () => {
       <div>
         <button
           type="submit"
-          className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Submit
+          className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          {loading ? (
+            <p>
+              <span className="loader"></span> Loading...
+            </p>
+          ) : (
+            "Submit"
+          )}
         </button>
       </div>
     </form>
